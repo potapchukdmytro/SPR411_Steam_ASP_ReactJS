@@ -20,9 +20,24 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Add swagger
 builder.Services.AddSwaggerGen();
 
+// Add cors
+string corsPolicy = "allowAll";
+builder.Services.AddCors(cfg =>
+{
+    cfg.AddPolicy(corsPolicy, cfg =>
+    {
+        cfg.AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+// Cors
+app.UseCors(corsPolicy);
 
 // Swagger
 if (app.Environment.IsDevelopment())
