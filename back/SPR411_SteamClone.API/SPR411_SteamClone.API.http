@@ -1,0 +1,6 @@
+@SPR411_SteamClone.API_HostAddress = http://localhost:5053
+
+GET {{SPR411_SteamClone.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

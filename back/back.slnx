@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="SPR411_SteamClone.API/SPR411_SteamClone.API.csproj" />
+  <Project Path="SPR411_SteamClone.BLL/SPR411_SteamClone.BLL.csproj" />
+  <Project Path="SPR411_SteamClone.DAL/SPR411_SteamClone.DAL.csproj" />
+</Solution>
