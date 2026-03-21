@@ -25,7 +25,7 @@ namespace SPR411_SteamClone.BLL.Services
 
             var dtos = _mapper.Map<List<DeveloperDto>>(entities);
 
-            return ServiceResponse.Success("Розробників отримано", dtos);
+            return ServiceResponse.Success("Список розробників отримано", dtos);
         }
 
         public async Task<ServiceResponse> GetByIdAsync(int id)

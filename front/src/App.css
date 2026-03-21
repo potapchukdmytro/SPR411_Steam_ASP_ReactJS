@@ -1,4 +1,4 @@
-#root {
-  margin: 0 auto;
-  padding: 2rem;
+body {
+  margin: 0;
+  background-color: dimgray;
 }
