@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SPR411_SteamClone.DAL\SPR411_SteamClone.DAL.csproj" />
+  </ItemGroup>
+
 </Project>

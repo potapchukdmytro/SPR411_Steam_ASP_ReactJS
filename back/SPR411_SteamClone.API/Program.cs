@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SPR411_SteamClone.BLL.Services;
 using SPR411_SteamClone.DAL;
 using SPR411_SteamClone.DAL.Initializer;
 using SPR411_SteamClone.DAL.Repositories;
@@ -7,6 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add repositories
 builder.Services.AddScoped<GenreRepository>();
+builder.Services.AddScoped<DeveloperRepository>();
+
+// Add services
+builder.Services.AddScoped<DeveloperService>();
 
 builder.Services.AddControllers();
 
