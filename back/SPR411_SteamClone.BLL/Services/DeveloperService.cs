@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using SPR411_SteamClone.BLL.Dtos.Developer;
 using SPR411_SteamClone.DAL.Entities;
 using SPR411_SteamClone.DAL.Repositories;
@@ -8,10 +9,12 @@ namespace SPR411_SteamClone.BLL.Services
     public class DeveloperService
     {
         private readonly DeveloperRepository _developerRepository;
+        private readonly IMapper _mapper;
 
-        public DeveloperService(DeveloperRepository developerRepository)
+        public DeveloperService(DeveloperRepository developerRepository, IMapper mapper)
         {
             _developerRepository = developerRepository;
+            _mapper = mapper;
         }
 
         public async Task<ServiceResponse> GetAllAsync()
@@ -20,12 +23,7 @@ namespace SPR411_SteamClone.BLL.Services
                 .Include(d => d.Games)
                 .ToListAsync();
 
-            var dtos = entities.Select(e => new DeveloperDto
-            {
-                Image = e.Image,
-                Name = e.Name,
-                Id = e.Id
-            });
+            var dtos = _mapper.Map<List<DeveloperDto>>(entities);
 
             return ServiceResponse.Success("Розробників отримано", dtos);
         }
@@ -39,12 +37,7 @@ namespace SPR411_SteamClone.BLL.Services
                 return ServiceResponse.Error($"Розробник з id '{id}' не знайдений");
             }
 
-            var dto = new DeveloperDto
-            {
-                Id = entity.Id,
-                Image = entity.Image,
-                Name = entity.Name
-            };
+            var dto = _mapper.Map<DeveloperDto>(entity);
 
             return ServiceResponse.Success("Розробника отримано", dto);
         }
@@ -57,11 +50,7 @@ namespace SPR411_SteamClone.BLL.Services
             }
 
             // mapping
-            var entity = new DeveloperEntity
-            {
-                Name = dto.Name,
-                Image = dto.Image?.FileName
-            };
+            var entity = _mapper.Map<DeveloperEntity>(dto);
 
             bool res = await _developerRepository.CreateAsync(entity);
 
@@ -70,12 +59,7 @@ namespace SPR411_SteamClone.BLL.Services
                 return ServiceResponse.Error($"Не вдалося додати розробника");
             }
 
-            var responseDto = new DeveloperDto
-            {
-                Id = entity.Id,
-                Image = entity.Image,
-                Name = entity.Name
-            };
+            var responseDto = _mapper.Map<DeveloperDto>(entity);
 
             return ServiceResponse.Success($"Розробник '{dto.Name}' успішно доданий", responseDto);
         }
@@ -95,8 +79,8 @@ namespace SPR411_SteamClone.BLL.Services
             }
 
             string oldName = entity.Name;
-            entity.Name = dto.Name;
-            entity.Image = dto.Image?.FileName;
+
+            _mapper.Map(dto, entity);
 
             bool res = await _developerRepository.UpdateAsync(entity);
 
@@ -105,12 +89,7 @@ namespace SPR411_SteamClone.BLL.Services
                 return ServiceResponse.Error($"Не вдалося змінити дані розробника");
             }
 
-            var responseDto = new DeveloperDto
-            {
-                Id = entity.Id,
-                Image = entity.Image,
-                Name = entity.Name
-            };
+            var responseDto = _mapper.Map<DeveloperDto>(entity);
 
             return ServiceResponse.Success($"Розробник '{oldName}' успішно змінений", responseDto);
         }
