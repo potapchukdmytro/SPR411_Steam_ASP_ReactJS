@@ -6,6 +6,7 @@ import {darkTheme} from "./theming/darkTheme.js";
 import {ThemeProvider} from "@mui/material";
 import CreateDeveloper from "./pages/developers/CreateDeveloper.jsx";
 import {Bounce, ToastContainer} from "react-toastify";
+import NotFound from "./pages/notFound/NotFound.jsx";
 
 function App() {
 
@@ -14,8 +15,11 @@ function App() {
             <ThemeProvider theme={darkTheme}>
                 <Routes>
                     <Route path="/" element={<DefaultLayout/>}>
-                        <Route index element={<DevelopersHome/>}/>
-                        <Route path="create" element={<CreateDeveloper/>}/>
+                        <Route path="developers">
+                            <Route index element={<DevelopersHome/>}/>
+                            <Route path="create" element={<CreateDeveloper/>}/>
+                        </Route>
+                        <Route path="*" element={<NotFound/>}/>
                     </Route>
                 </Routes>
             </ThemeProvider>

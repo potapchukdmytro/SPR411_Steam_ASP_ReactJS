@@ -1,7 +1,9 @@
-import {Box, CircularProgress, Grid} from "@mui/material";
+import {Box, CircularProgress, Grid, IconButton} from "@mui/material";
 import DeveloperCard from "../../components/cards/DeveloperCard.jsx";
 import {useEffect, useState} from "react";
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import {api} from "../../api.js";
+import {Link} from "react-router";
 
 const DevelopersHome = () => {
     const [developers, setDevelopers] = useState([]);
@@ -25,7 +27,7 @@ const DevelopersHome = () => {
 
     return (
         <Box>
-            <Grid container spacing={2} marginTop={2}>
+            <Grid container spacing={2} sx={{my: 2}}>
                 {
                     developers.map((developer) => (
                         <Grid size={3} key={developer.id}>
@@ -33,6 +35,13 @@ const DevelopersHome = () => {
                         </Grid>
                     ))
                 }
+                <Grid size={3} sx={{textAlign: "center"}}>
+                    <Link to="create">
+                        <IconButton>
+                            <AddCircleOutlineIcon sx={{fontSize: "5em;"}}/>
+                        </IconButton>
+                    </Link>
+                </Grid>
             </Grid>
         </Box>
     )
