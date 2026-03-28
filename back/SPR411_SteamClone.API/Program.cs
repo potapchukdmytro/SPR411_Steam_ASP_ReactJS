@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+using SPR411_SteamClone.BLL.Settings;
 using SPR411_SteamClone.BLL.Services;
 using SPR411_SteamClone.DAL;
 using SPR411_SteamClone.DAL.Initializer;
@@ -9,10 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add repositories
 builder.Services.AddScoped<GenreRepository>();
 builder.Services.AddScoped<DeveloperRepository>();
+builder.Services.AddScoped<GameRepository>();
+builder.Services.AddScoped<GameImageRepository>();
 
 // Add services
 builder.Services.AddScoped<DeveloperService>();
 builder.Services.AddScoped<GenreService>();
+builder.Services.AddScoped<GameService>();
+builder.Services.AddScoped<FileService>();
 
 // Add automapper
 builder.Services.AddAutoMapper(cfg =>
@@ -48,9 +54,6 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-// Cors
-app.UseCors(corsPolicy);
-
 // Swagger
 if (app.Environment.IsDevelopment())
 {
@@ -60,9 +63,59 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Static files
+var root = builder.Environment.ContentRootPath;
+var storagePath = Path.Combine(root, StaticFilesSettings.Storage);
+var sharePath = Path.Combine(storagePath, StaticFilesSettings.Share);
+var developersPath = Path.Combine(storagePath, StaticFilesSettings.Developers);
+var gamesPath = Path.Combine(storagePath, StaticFilesSettings.Games);
+
+if(!Directory.Exists(storagePath))
+{
+    Directory.CreateDirectory(storagePath);
+}
+
+if (!Directory.Exists(sharePath))
+{
+    Directory.CreateDirectory(sharePath);
+}
+
+if (!Directory.Exists(developersPath))
+{
+    Directory.CreateDirectory(developersPath);
+}
+
+if (!Directory.Exists(gamesPath))
+{
+    Directory.CreateDirectory(gamesPath);
+}
+
+// Share
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(sharePath),
+    RequestPath = "/share"
+});
+
+// Developers
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(developersPath),
+    RequestPath = "/developer"
+});
+
+// Games
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(gamesPath),
+    RequestPath = "/game"
+});
+
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseCors(corsPolicy);
 
 await app.SeedAsync();
 

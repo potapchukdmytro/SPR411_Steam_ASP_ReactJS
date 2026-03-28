@@ -19,4 +19,9 @@
     <ProjectReference Include="..\SPR411_SteamClone.DAL\SPR411_SteamClone.DAL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Storage\Developers\" />
+    <Folder Include="Storage\Share\" />
+  </ItemGroup>
+
 </Project>

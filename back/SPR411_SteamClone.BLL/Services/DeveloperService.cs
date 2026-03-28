@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SPR411_SteamClone.BLL.Dtos.Developer;
-using SPR411_SteamClone.BLL.Dtos.Genre;
+using SPR411_SteamClone.BLL.Settings;
 using SPR411_SteamClone.DAL.Entities;
 using SPR411_SteamClone.DAL.Repositories;
 
@@ -10,12 +10,14 @@ namespace SPR411_SteamClone.BLL.Services
     public class DeveloperService
     {
         private readonly DeveloperRepository _developerRepository;
+        private readonly FileService _fileService;
         private readonly IMapper _mapper;
 
-        public DeveloperService(DeveloperRepository developerRepository, IMapper mapper)
+        public DeveloperService(DeveloperRepository developerRepository, IMapper mapper, FileService fileService)
         {
             _developerRepository = developerRepository;
             _mapper = mapper;
+            _fileService = fileService;
         }
 
         public async Task<ServiceResponse> GetAllAsync()
@@ -33,7 +35,7 @@ namespace SPR411_SteamClone.BLL.Services
         {
             var entity = await _developerRepository.GetByIdAsync(id);
 
-            if(entity == null)
+            if (entity == null)
             {
                 return ServiceResponse.Error($"Розробник з id '{id}' не знайдений");
             }
@@ -67,9 +69,19 @@ namespace SPR411_SteamClone.BLL.Services
             // mapping
             var entity = _mapper.Map<DeveloperEntity>(dto);
 
+            // image
+            if (dto.Image != null)
+            {
+                var fileResponse = await _fileService.SaveImageAsync(dto.Image, StaticFilesSettings.Developers);
+                if (fileResponse.IsSuccess)
+                {
+                    entity.Image = fileResponse.Payload?.ToString();
+                }
+            }
+
             bool res = await _developerRepository.CreateAsync(entity);
 
-            if(!res)
+            if (!res)
             {
                 return ServiceResponse.Error($"Не вдалося додати розробника");
             }

@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SPR411_SteamClone.API.Extensions;
+using SPR411_SteamClone.BLL.Dtos.Game;
+using SPR411_SteamClone.BLL.Services;
 using SPR411_SteamClone.DAL;
 
 namespace SPR411_SteamClone.API.Controllers
@@ -9,10 +12,12 @@ namespace SPR411_SteamClone.API.Controllers
     public class GameController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly GameService _gameService;
 
-        public GameController(AppDbContext context)
+        public GameController(AppDbContext context, GameService gameService)
         {
             _context = context;
+            _gameService = gameService;
         }
 
         [HttpGet]
@@ -42,9 +47,10 @@ namespace SPR411_SteamClone.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post()
+        public async Task<IActionResult> CreateAsync([FromForm] CreateGameDto dto)
         {
-            return Ok("Це POST метод");
+            var response = await _gameService.CreateAsync(dto);
+            return this.GetResult(response);
         }
 
         [HttpDelete]
