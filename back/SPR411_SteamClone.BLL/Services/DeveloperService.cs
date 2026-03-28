@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SPR411_SteamClone.BLL.Dtos.Developer;
+using SPR411_SteamClone.BLL.Dtos.Genre;
 using SPR411_SteamClone.DAL.Entities;
 using SPR411_SteamClone.DAL.Repositories;
 
@@ -40,6 +41,20 @@ namespace SPR411_SteamClone.BLL.Services
             var dto = _mapper.Map<DeveloperDto>(entity);
 
             return ServiceResponse.Success("Розробника отримано", dto);
+        }
+
+        public async Task<ServiceResponse> GetByNameAsync(string name)
+        {
+            var entity = await _developerRepository.GetByNameAsync(name);
+
+            if (entity == null)
+            {
+                return ServiceResponse.Error($"Розробник '{name}' не знайдений");
+            }
+
+            var dto = _mapper.Map<DeveloperDto>(entity);
+
+            return ServiceResponse.Success($"Розробника отримано", dto);
         }
 
         public async Task<ServiceResponse> CreateAsync(CreateDeveloperDto dto)
@@ -107,7 +122,7 @@ namespace SPR411_SteamClone.BLL.Services
 
             if (!res)
             {
-                return ServiceResponse.Error($"Не вдалося видалити розробника");
+                return ServiceResponse.Error($"Не вдалося видалити розробника '{entity.Name}'");
             }
 
             return ServiceResponse.Success($"Розробник '{entity.Name}' успішно видалений");

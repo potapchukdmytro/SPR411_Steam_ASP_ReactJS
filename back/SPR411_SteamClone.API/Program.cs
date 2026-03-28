@@ -12,6 +12,7 @@ builder.Services.AddScoped<DeveloperRepository>();
 
 // Add services
 builder.Services.AddScoped<DeveloperService>();
+builder.Services.AddScoped<GenreService>();
 
 // Add automapper
 builder.Services.AddAutoMapper(cfg =>

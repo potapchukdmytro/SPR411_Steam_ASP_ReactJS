@@ -21,9 +21,9 @@ namespace SPR411_SteamClone.DAL.Repositories
                 .FirstOrDefaultAsync(g => g.Name.ToLower() == name.ToLower());
         }
 
-        public async Task<bool> IsExitsAsync(string name)
+        public async Task<bool> IsExistsAsync(string name)
         {
-            return await GetByNameAsync(name) != null;
+            return await Genres.AnyAsync(g => g.Name.ToLower() == name.ToLower());
         }
     }
 }

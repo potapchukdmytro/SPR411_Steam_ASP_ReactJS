@@ -22,6 +22,12 @@ namespace SPR411_SteamClone.DAL.Repositories
                 
         }
 
+        public async Task<DeveloperEntity?> GetByNameAsync(string name)
+        {
+            return await Developers
+                .FirstOrDefaultAsync(d => d.Name.ToLower() == name.ToLower());
+        }
+
         public async Task<bool> IsExistsAsync(string name, params int[] exceptionIds)
         {
             return await Developers
