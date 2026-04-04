@@ -1,10 +1,16 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
-using SPR411_SteamClone.BLL.Settings;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using SPR411_SteamClone.BLL.Services;
+using SPR411_SteamClone.BLL.Settings;
 using SPR411_SteamClone.DAL;
+using SPR411_SteamClone.DAL.Entities;
 using SPR411_SteamClone.DAL.Initializer;
 using SPR411_SteamClone.DAL.Repositories;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +25,8 @@ builder.Services.AddScoped<DeveloperService>();
 builder.Services.AddScoped<GenreService>();
 builder.Services.AddScoped<GameService>();
 builder.Services.AddScoped<FileService>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<JwtService>();
 
 // Add automapper
 builder.Services.AddAutoMapper(cfg =>
@@ -35,8 +43,85 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString);
 });
 
+// Identity
+builder.Services.AddIdentity<UserEntity, RoleEntity>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+
+    options.Password.RequiredLength = 6;
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+
+})
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
+// Options
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
+// Add authentication
+string? secretKey = builder.Configuration["JwtSettings:SecretKey"];
+if (string.IsNullOrEmpty(secretKey))
+{
+    throw new ArgumentNullException("Jwt secret key is null");
+}
+
+byte[] secretKeyBytes = Encoding.UTF8.GetBytes(secretKey);
+string issuer = builder.Configuration["JwtSettings:Issuer"] ?? string.Empty;
+string audience = builder.Configuration["JwtSettings:Audience"] ?? string.Empty;
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateIssuerSigningKey = true,
+        RequireExpirationTime = true,
+        ClockSkew = TimeSpan.Zero,
+        ValidateLifetime = true,
+        ValidIssuer = issuer,
+        ValidAudience = audience,
+        IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes)
+    };
+});
+
 // Add swagger
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "SPR411", Version = "v1" });
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme."
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 // Add cors
 string corsPolicy = "allowAll";
@@ -70,7 +155,7 @@ var sharePath = Path.Combine(storagePath, StaticFilesSettings.Share);
 var developersPath = Path.Combine(storagePath, StaticFilesSettings.Developers);
 var gamesPath = Path.Combine(storagePath, StaticFilesSettings.Games);
 
-if(!Directory.Exists(storagePath))
+if (!Directory.Exists(storagePath))
 {
     Directory.CreateDirectory(storagePath);
 }
@@ -111,6 +196,7 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/game"
 });
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

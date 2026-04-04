@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SPR411_SteamClone.API.Extensions;
 using SPR411_SteamClone.BLL.Dtos.Game;
 using SPR411_SteamClone.BLL.Services;
 using SPR411_SteamClone.DAL;
+using SPR411_SteamClone.DAL.Entities;
 
 namespace SPR411_SteamClone.API.Controllers
 {
@@ -26,6 +28,7 @@ namespace SPR411_SteamClone.API.Controllers
             var games = await _context.Games
                 .AsNoTracking()
                 .ToListAsync();
+
             return Ok(games);
         }
 

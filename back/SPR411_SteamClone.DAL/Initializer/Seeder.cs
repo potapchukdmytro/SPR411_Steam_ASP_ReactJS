@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SPR411_SteamClone.DAL.Entities;
@@ -11,9 +12,72 @@ namespace SPR411_SteamClone.DAL.Initializer
         {
             using var scope = app.ApplicationServices.CreateScope();
             using var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            using var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserEntity>>();
+            using var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<RoleEntity>>();
 
             await dbContext.Database.MigrateAsync();
 
+            await AddUsersAndRolesAsync(userManager, roleManager);
+            await AddGamesAndDevelopersAsync(dbContext);
+        }
+
+        private static async Task AddUsersAndRolesAsync(UserManager<UserEntity> userManager, RoleManager<RoleEntity> roleManager)
+        {
+            // Roles
+            if (!roleManager.Roles.Any(r => r.NormalizedName == "ADMIN"))
+            {
+                RoleEntity adminRole = new RoleEntity
+                {
+                    Name = "admin"
+                };
+
+                await roleManager.CreateAsync(adminRole);
+            }
+
+            if (!roleManager.Roles.Any(r => r.NormalizedName == "USER"))
+            {
+                RoleEntity userRole = new RoleEntity
+                {
+                    Name = "user"
+                };
+
+                await roleManager.CreateAsync(userRole);
+            }
+
+            // Users
+            if (!userManager.Users.Any(u => u.NormalizedUserName == "ADMIN"))
+            {
+                var admin = new UserEntity
+                {
+                    Email = "admin@mail.com",
+                    UserName = "admin",
+                    FirstName = "John",
+                    LastName = "Doe",
+                    EmailConfirmed = true
+                };
+
+                await userManager.CreateAsync(admin, "qwerty");
+                await userManager.AddToRoleAsync(admin, "admin");
+            }
+
+            if (!userManager.Users.Any(u => u.NormalizedUserName == "USER"))
+            {
+                var user = new UserEntity
+                {
+                    Email = "user@mail.com",
+                    UserName = "user",
+                    FirstName = "Mike",
+                    LastName = "Thomson",
+                    EmailConfirmed = true
+                };
+
+                await userManager.CreateAsync(user, "qwerty");
+                await userManager.AddToRoleAsync(user, "user");
+            }
+        }
+
+        private static async Task AddGamesAndDevelopersAsync(AppDbContext dbContext)
+        {
             // Genres
             var genres = new List<GenreEntity>();
             if (!dbContext.Genres.Any())
