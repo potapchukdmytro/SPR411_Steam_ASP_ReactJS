@@ -1,8 +1,18 @@
 import {AppBar, Box, Button, IconButton, Toolbar, Typography} from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 import {Link} from "react-router";
+import {useDispatch, useSelector} from "react-redux";
+import {removeCookie} from "../../helpres/cookie.js";
 
 const Navbar = () => {
+    const {user, isAuth} = useSelector((state) => state.auth);
+    const dispatch = useDispatch();
+
+    const logout = () => {
+        dispatch({type: "LOGOUT"});
+        removeCookie("jwt");
+    }
+
     return (
         <Box sx={{flexGrow: 1}}>
             <AppBar position="static">
@@ -35,7 +45,20 @@ const Navbar = () => {
                         </Typography>
                     </Link>
                     <Box sx={{flexGrow: 1, textAlign: "right"}}>
-                        <Button color="inherit">Login</Button>
+                        {
+                            isAuth ?
+                                <>
+                                    <Link to="/profile">
+                                        <Button color="inherit">Вітаємо, {user.userName}</Button>
+                                    </Link>
+                                    <Button onClick={logout} color="inherit">Вийти</Button>
+                                </>
+                                :
+                                <Link to="/login">
+                                    <Button color="inherit">Login</Button>
+                                </Link>
+                        }
+
                     </Box>
                 </Toolbar>
             </AppBar>

@@ -6,7 +6,7 @@ using SPR411_SteamClone.BLL.Services;
 namespace SPR411_SteamClone.API.Controllers
 {
     [ApiController]
-    [Route("auth")]
+    [Route("api/auth")]
     public class AuthController : ControllerBase
     {
         private readonly AuthService _authService;
