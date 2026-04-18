@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Quartz;
+using SPR411_SteamClone.API.Infrastructure;
+using SPR411_SteamClone.API.Jobs;
 using SPR411_SteamClone.API.Middlewares;
 using SPR411_SteamClone.BLL.Services;
 using SPR411_SteamClone.BLL.Settings;
@@ -92,6 +95,16 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes)
     };
 });
+
+// Add quartz
+var jobs = new (Type type, string cron)[]
+{
+    (typeof(ConsoleSpamJob), "* * * ? * *"),
+    (typeof(LogsCleanJob), "30 * * ? * *")
+};
+
+builder.Services.AddJobs(jobs);
+builder.Services.AddQuartzHostedService(cfg => cfg.WaitForJobsToComplete = true);
 
 // Add swagger
 builder.Services.AddSwaggerGen(options =>
