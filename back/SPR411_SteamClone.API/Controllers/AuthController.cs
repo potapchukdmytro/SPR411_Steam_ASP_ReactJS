@@ -10,15 +10,19 @@ namespace SPR411_SteamClone.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly AuthService _authService;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(AuthService authService)
+        public AuthController(AuthService authService, ILogger<AuthController> logger)
         {
             _authService = authService;
+            _logger = logger;
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> LoginAsync(LoginDto dto)
         {
+            //_logger.LogInformation($"[{DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss")}] - User login\n\tusername: {dto.UserName}\n\tpassword: {dto.Password}");
+
             var response = await _authService.LoginAsync(dto);
             return this.GetResult(response);
         }

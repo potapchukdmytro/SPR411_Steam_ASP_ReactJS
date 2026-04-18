@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SPR411_SteamClone.API.Middlewares;
 using SPR411_SteamClone.BLL.Services;
 using SPR411_SteamClone.BLL.Settings;
 using SPR411_SteamClone.DAL;
@@ -137,7 +138,10 @@ builder.Services.AddCors(cfg =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Middlewares
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<ExampleMiddleware>();
+//app.UseMiddleware<ApiKeyMiddleware>();
 
 // Swagger
 if (app.Environment.IsDevelopment())

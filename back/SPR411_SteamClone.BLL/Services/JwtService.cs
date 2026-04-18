@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using SPR411_SteamClone.BLL.Extensions;
 using SPR411_SteamClone.BLL.Settings;
 using SPR411_SteamClone.DAL.Entities;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,16 +13,19 @@ namespace SPR411_SteamClone.BLL.Services
     public class JwtService
     {
         private readonly JwtSettings _jwtSettings;
+        private readonly ILogger<JwtService> _logger;
 
-        public JwtService(IOptions<JwtSettings> options)
+        public JwtService(IOptions<JwtSettings> options, ILogger<JwtService> logger)
         {
             _jwtSettings = options.Value;
+            _logger = logger;
         }
 
         public string GetAcessToken(UserEntity user)
         {
-            if(string.IsNullOrEmpty(_jwtSettings.SecretKey))
+            if(!string.IsNullOrEmpty(_jwtSettings.SecretKey))
             {
+                _logger.LogInformationWithTimestamp("Jwt secret key is null");
                 throw new ArgumentNullException("Jwt secret key is null");
             }
 
