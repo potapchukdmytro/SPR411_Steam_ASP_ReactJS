@@ -23,7 +23,7 @@ namespace SPR411_SteamClone.BLL.Services
 
         public string GetAcessToken(UserEntity user)
         {
-            if(!string.IsNullOrEmpty(_jwtSettings.SecretKey))
+            if(string.IsNullOrEmpty(_jwtSettings.SecretKey))
             {
                 _logger.LogInformationWithTimestamp("Jwt secret key is null");
                 throw new ArgumentNullException("Jwt secret key is null");
