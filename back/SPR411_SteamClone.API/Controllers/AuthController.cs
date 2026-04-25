@@ -26,5 +26,12 @@ namespace SPR411_SteamClone.API.Controllers
             var response = await _authService.LoginAsync(dto);
             return this.GetResult(response);
         }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> RegisterAsync([FromBody]RegisterDto dto)
+        {
+            var response = await _authService.RegisterAsync(dto);
+            return this.GetResult(response);
+        }
     }
 }

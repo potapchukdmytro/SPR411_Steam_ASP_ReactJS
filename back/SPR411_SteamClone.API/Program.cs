@@ -5,6 +5,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Quartz;
+using Serilog;
 using SPR411_SteamClone.API.Infrastructure;
 using SPR411_SteamClone.API.Jobs;
 using SPR411_SteamClone.API.Middlewares;
@@ -39,6 +40,15 @@ builder.Services.AddAutoMapper(cfg =>
 }, AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddControllers();
+
+// Serilog
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("logs/log_.txt", rollingInterval: RollingInterval.Hour)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -99,8 +109,8 @@ builder.Services.AddAuthentication(options =>
 // Add quartz
 var jobs = new (Type type, string cron)[]
 {
-    (typeof(ConsoleSpamJob), "* * * ? * *"),
-    (typeof(LogsCleanJob), "30 * * ? * *")
+    //(typeof(ConsoleSpamJob), "* * * ? * *"),
+    //(typeof(LogsCleanJob), "30 * * ? * *")
 };
 
 builder.Services.AddJobs(jobs);
@@ -153,7 +163,7 @@ var app = builder.Build();
 
 // Middlewares
 app.UseMiddleware<ExceptionMiddleware>();
-app.UseMiddleware<ExampleMiddleware>();
+//app.UseMiddleware<ExampleMiddleware>();
 //app.UseMiddleware<ApiKeyMiddleware>();
 
 // Swagger

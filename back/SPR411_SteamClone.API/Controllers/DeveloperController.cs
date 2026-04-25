@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SPR411_SteamClone.API.Extensions;
 using SPR411_SteamClone.BLL.Dtos.Developer;
 using SPR411_SteamClone.BLL.Services;
@@ -9,7 +7,7 @@ namespace SPR411_SteamClone.API.Controllers
 {
     [ApiController]
     [Route("api/developer")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class DeveloperController : ControllerBase
     {
         private readonly DeveloperService _developerService;
@@ -29,7 +27,7 @@ namespace SPR411_SteamClone.API.Controllers
 
         // api/developer/5
         [HttpGet("by-id/{id}")]
-        public async Task<IActionResult> GetByIdAsync([FromRoute]int id)
+        public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
         {
             var response = await _developerService.GetByIdAsync(id);
             return this.GetResult(response);
@@ -57,7 +55,7 @@ namespace SPR411_SteamClone.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute]int id)
+        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
         {
             var response = await _developerService.DeleteAsync(id);
             return this.GetResult(response);
