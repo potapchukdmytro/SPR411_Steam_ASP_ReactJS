@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SPR411_SteamClone.API.Extensions;
 using SPR411_SteamClone.BLL.Dtos.Genre;
+using SPR411_SteamClone.BLL.Dtos.Query;
 using SPR411_SteamClone.BLL.Services;
 using SPR411_SteamClone.DAL.Repositories;
 using System.Xml.Linq;
@@ -20,9 +21,9 @@ namespace SPR411_SteamClone.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAsync()
+        public async Task<IActionResult> GetAsync([FromQuery] PaginationDto pagination)
         {
-            var response = await _genreService.GetAllAsync();
+            var response = await _genreService.GetAllAsync(pagination);
             return this.GetResult(response);
         }
 

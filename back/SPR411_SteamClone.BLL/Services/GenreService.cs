@@ -1,12 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SPR411_SteamClone.BLL.Dtos.Genre;
+using SPR411_SteamClone.BLL.Dtos.Query;
 using SPR411_SteamClone.DAL.Entities;
 using SPR411_SteamClone.DAL.Repositories;
 
 namespace SPR411_SteamClone.BLL.Services
 {
-    public class GenreService
+    public class GenreService : BaseService
     {
         private readonly GenreRepository _genreRepository;
         private readonly IMapper _mapper;
@@ -17,15 +18,20 @@ namespace SPR411_SteamClone.BLL.Services
             _mapper = mapper;
         }
 
-        public async Task<ServiceResponse> GetAllAsync()
+        public async Task<ServiceResponse> GetAllAsync(PaginationDto pagination)
         {
-            var entities = await _genreRepository.Genres
-                .AsNoTracking()
-                .ToListAsync();
+            var query = _genreRepository.Genres
+                .AsNoTracking();
 
+            var paginationResult = await Pagination<GenreEntity, GenreDto>(
+                query,
+                pagination);
+
+            var entities = await paginationResult.query.ToListAsync();
             var dtos = _mapper.Map<List<GenreDto>>(entities);
+            paginationResult.result.Items = dtos;
 
-            return ServiceResponse.Success("Список жанрів отримано", dtos);
+            return ServiceResponse.Success("Список жанрів отримано", paginationResult.result);
         }
 
         public async Task<ServiceResponse> GetByIdAsync(int id)

@@ -1,13 +1,14 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SPR411_SteamClone.BLL.Dtos.Developer;
+using SPR411_SteamClone.BLL.Dtos.Query;
 using SPR411_SteamClone.BLL.Settings;
 using SPR411_SteamClone.DAL.Entities;
 using SPR411_SteamClone.DAL.Repositories;
 
 namespace SPR411_SteamClone.BLL.Services
 {
-    public class DeveloperService
+    public class DeveloperService : BaseService
     {
         private readonly DeveloperRepository _developerRepository;
         private readonly FileService _fileService;
@@ -20,15 +21,21 @@ namespace SPR411_SteamClone.BLL.Services
             _fileService = fileService;
         }
 
-        public async Task<ServiceResponse> GetAllAsync()
+        public async Task<ServiceResponse> GetAllAsync(PaginationDto pagination)
         {
-            var entities = await _developerRepository.Developers
+            var query = _developerRepository.Developers
                 .Include(d => d.Games)
-                .ToListAsync();
+                .OrderBy(d => d.Id);
 
+            var paginationResult = await Pagination<DeveloperEntity, DeveloperDto>(
+                query,
+                pagination);
+
+            var entities = await paginationResult.query.ToListAsync();
             var dtos = _mapper.Map<List<DeveloperDto>>(entities);
+            paginationResult.result.Items = dtos;
 
-            return ServiceResponse.Success("Список розробників отримано", dtos);
+            return ServiceResponse.Success("Список розробників отримано", paginationResult.result);
         }
 
         public async Task<ServiceResponse> GetByIdAsync(int id)

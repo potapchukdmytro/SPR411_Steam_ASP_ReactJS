@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SPR411_SteamClone.API.Extensions;
 using SPR411_SteamClone.BLL.Dtos.Developer;
+using SPR411_SteamClone.BLL.Dtos.Query;
 using SPR411_SteamClone.BLL.Services;
 
 namespace SPR411_SteamClone.API.Controllers
@@ -19,9 +20,9 @@ namespace SPR411_SteamClone.API.Controllers
 
         // api/developer
         [HttpGet]
-        public async Task<IActionResult> GetAsync()
+        public async Task<IActionResult> GetAsync([FromQuery]PaginationDto pagination)
         {
-            var response = await _developerService.GetAllAsync();
+            var response = await _developerService.GetAllAsync(pagination);
             return this.GetResult(response);
         }
 
